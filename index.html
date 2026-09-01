@@ -4,9 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>기린성형외과 · 실루엣재배치 상담 접수</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
   :root{
@@ -36,29 +33,32 @@
     max-width:440px;
     min-height:100vh;
     background:var(--paper-hi);
-    border-left:1px solid var(--line);
-    border-right:1px solid var(--line);
-    padding:56px 30px 72px;
+    padding:52px 26px 68px;
     display:flex;
     flex-direction:column;
   }
+  @media (min-width:520px){
+    .frame{
+      border-left:1px solid var(--line);
+      border-right:1px solid var(--line);
+      padding:56px 34px 72px;
+    }
+  }
   .mark{
-    font-family:"Noto Serif KR",serif;
-    font-weight:500;
-    font-size:15px;
-    letter-spacing:.14em;
+    font-weight:600;
+    font-size:13px;
+    letter-spacing:.2em;
     color:var(--ink-soft);
     padding-bottom:28px;
     border-bottom:1px solid var(--line);
     margin-bottom:44px;
   }
   h1{
-    font-family:"Noto Serif KR",serif;
-    font-weight:300;
-    font-size:29px;
-    line-height:1.5;
-    letter-spacing:-.01em;
-    margin-bottom:20px;
+    font-weight:600;
+    font-size:27px;
+    line-height:1.45;
+    letter-spacing:-.035em;
+    margin-bottom:18px;
   }
   h1 em{font-style:normal;font-weight:700}
   .lede{color:var(--ink-soft);font-size:15px;margin-bottom:36px;max-width:36ch}
@@ -81,9 +81,9 @@
   input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{
     outline:2px solid var(--bronze);outline-offset:3px}
   #code{
-    font-family:"Noto Serif KR",serif;
-    font-size:26px;
-    letter-spacing:.1em;
+    font-size:30px;
+    font-weight:600;
+    letter-spacing:.32em;
     padding:6px 0 14px;
   }
   #code::placeholder{color:var(--line);letter-spacing:.1em}
@@ -124,8 +124,9 @@
   /* ---- 본문(2단계) ---- */
   .hidden{display:none}
   .named{
-    font-family:"Noto Serif KR",serif;
-    font-size:15px;
+    font-size:14px;
+    font-weight:500;
+    letter-spacing:-.01em;
     color:var(--bronze);
     margin-bottom:14px;
   }
@@ -142,11 +143,11 @@
     margin-bottom:30px;
   }
   .block h2{
-    font-family:"Noto Serif KR",serif;
-    font-weight:500;
-    font-size:17px;
+    font-weight:600;
+    font-size:16px;
+    letter-spacing:-.025em;
     color:var(--ink);
-    margin-bottom:12px;
+    margin-bottom:11px;
     line-height:1.5;
   }
   .spec{
@@ -198,10 +199,10 @@
   }
   .ticket dt{font-size:12.5px;margin-bottom:3px}
   .ticket dd{
-    font-family:"Noto Serif KR",serif;
-    font-size:19px;
+    font-size:18px;
+    font-weight:600;
     color:var(--ink);
-    letter-spacing:.05em;
+    letter-spacing:-.01em;
     margin-bottom:16px;
   }
   .ticket dd:last-child{margin-bottom:0}
@@ -229,7 +230,7 @@
     <h1>안내받으신 분께<br>열리는 페이지입니다.</h1>
     <p class="lede">문자로 보내드린 확인코드를 입력해 주세요.</p>
     <label for="code">확인코드</label>
-    <input id="code" type="text" placeholder="P-09-KIM-0000" autocomplete="off" spellcheck="false">
+    <input id="code" type="text" inputmode="numeric" maxlength="4" placeholder="0000" autocomplete="off" spellcheck="false">
     <p class="err" id="gateErr"></p>
     <button id="gateBtn">확인</button>
     <div class="foot">
@@ -319,13 +320,6 @@
   // 구글시트 연동 주소 (Apps Script 웹 앱)
   const SHEET_URL = "https://script.google.com/macros/s/AKfycbzv7hV6HXNSiPzEbMAvjhuDPgyuv7EvWKRn1XHv2w5OrMYwq8Ft8-Jm_0gbIYRAOlL4/exec";
 
-  // 주소 파라미터에서 수신자 정보를 읽습니다.
-  // 예) ...?c=P-09-KIM-0431&n=김○○&m=김민지
-  const P = new URLSearchParams(location.search);
-  const LINK_CODE = (P.get("c") || "").trim().toUpperCase();
-  const LINK_NAME = (P.get("n") || "").trim();
-  const LINK_MGR  = (P.get("m") || "").trim();
-
   const $ = id => document.getElementById(id);
   const show = id => {
     ["gate","form","done"].forEach(s => $(s).classList.add("hidden"));
@@ -333,26 +327,43 @@
     window.scrollTo(0,0);
   };
 
+  let VERIFIED_NAME = "";
+
   $("code").addEventListener("input", e => {
-    e.target.value = e.target.value.toUpperCase();
+    e.target.value = e.target.value.replace(/\D/g,"").slice(0,4);
     $("gateErr").textContent = "";
   });
   $("code").addEventListener("keydown", e => { if (e.key === "Enter") $("gateBtn").click(); });
 
-  $("gateBtn").addEventListener("click", () => {
-    const v = $("code").value.trim().toUpperCase();
-    if (!v) { $("gateErr").textContent = "확인코드를 입력해 주세요."; return; }
+  $("gateBtn").addEventListener("click", async () => {
+    const v = $("code").value.trim();
+    if (!/^\d{4}$/.test(v)) { $("gateErr").textContent = "확인코드 네 자리를 입력해 주세요."; return; }
 
-    // 링크에 코드가 담겨 있으면 그 코드와 대조하고,
-    // 없으면 형식만 확인합니다.
-    const ok = LINK_CODE ? (v === LINK_CODE) : /^[PMR]-\d{2}-[A-Z]{2,4}-\d{4}$/.test(v);
-    if (!ok) { $("gateErr").textContent = "확인되지 않는 코드입니다. 문자를 다시 확인해 주세요."; return; }
+    const btn = $("gateBtn");
+    btn.disabled = true;
+    btn.textContent = "확인 중입니다";
+    $("gateErr").textContent = "";
 
-    $("greet").textContent = LINK_NAME
-      ? LINK_NAME + " 고객님, 확인되었습니다."
-      : "확인되었습니다.";
-    if (LINK_NAME) $("name").value = LINK_NAME;
-    show("form");
+    try {
+      const res = await fetch(SHEET_URL + "?code=" + encodeURIComponent(v));
+      const data = await res.json();
+      if (!data.ok) {
+        $("gateErr").textContent = "확인되지 않는 코드입니다. 문자를 다시 확인해 주세요.";
+        btn.disabled = false;
+        btn.textContent = "확인";
+        return;
+      }
+      VERIFIED_NAME = data.name || "";
+      $("greet").textContent = VERIFIED_NAME
+        ? VERIFIED_NAME + " 고객님, 확인되었습니다."
+        : "확인되었습니다.";
+      if (VERIFIED_NAME) $("name").value = VERIFIED_NAME;
+      show("form");
+    } catch (err) {
+      $("gateErr").textContent = "확인에 실패했습니다. 잠시 후 다시 시도해 주세요.";
+      btn.disabled = false;
+      btn.textContent = "확인";
+    }
   });
 
   $("phone").addEventListener("input", e => {
@@ -375,18 +386,16 @@
     $("formErr").textContent = "";
 
     const payload = {
-      code: $("code").value.trim().toUpperCase(),
+      code: $("code").value.trim(),
       name: name,
       phone: phone,
       when: $("when").value,
-      memo: $("memo").value.trim(),
-      manager: LINK_MGR
+      memo: $("memo").value.trim()
     };
 
     try {
       await fetch(SHEET_URL, {
         method: "POST",
-        mode: "no-cors",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload)
       });
