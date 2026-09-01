@@ -18,7 +18,7 @@
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
   body{
-    background:var(--paper);
+    background:var(--paper-hi);
     color:var(--ink);
     font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
     font-size:16px;
@@ -32,13 +32,14 @@
     width:100%;
     max-width:440px;
     min-height:100vh;
-    background:var(--paper-hi);
     padding:52px 26px 68px;
     display:flex;
     flex-direction:column;
   }
   @media (min-width:520px){
+    body{background:var(--paper)}
     .frame{
+      background:var(--paper-hi);
       border-left:1px solid var(--line);
       border-right:1px solid var(--line);
       padding:56px 34px 72px;
@@ -173,6 +174,7 @@
     padding:16px 18px;
     background:var(--paper);
     margin-bottom:36px;
+    margin-left:-2px;
     line-height:1.65;
   }
   .field{margin-bottom:26px}
